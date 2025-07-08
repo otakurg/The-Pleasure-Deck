@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>♥ Couples Card Game ♥</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .current-player {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .mode-selection {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .mode-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ecf0f1;
+        }
+
+        .mode-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .mode-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .mode-option:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .mode-option input[type="radio"] {
+            accent-color: #e74c3c;
+        }
+
+        .draw-button {
+            width: 100%;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .draw-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+        }
+
+        .draw-button:active {
+            transform: translateY(0);
+        }
+
+        .card-display {
+            background: rgba(255,255,255,0.95);
+            color: #2c3e50;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 200px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .card-content {
+            line-height: 1.6;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .card-header {
+            font-size: 16px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .card-separator {
+            text-align: center;
+            margin: 15px 0;
+            color: #7f8c8d;
+        }
+
+        .control-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .control-button {
+            padding: 12px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .next-turn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .add-card {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .safety-guidelines {
+            background: linear-gradient(45deg, #8e44ad, #9b59b6);
+            color: white;
+        }
+
+        .reset-game {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            color: #2c3e50;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #e74c3c;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .form-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .save-button {
+            background: #27ae60;
+            color: white;
+        }
+
+        .cancel-button {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .safety-content {
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .safety-section {
+            margin-bottom: 20px;
+        }
+
+        .safety-section h3 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .title {
+                font-size: 20px;
+            }
+            
+            .current-player {
+                font-size: 16px;
+            }
+            
+            .mode-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">♥ Couples Card Game ♥</div>
+        
+        <div class="current-player" id="currentPlayer">Current Turn: Him</div>
+        
+        <div class="mode-selection">
+            <div class="mode-title">Game Mode:</div>
+            <div class="mode-options">
+                <label class="mode-option">
+                    <input type="radio" name="gameMode" value="normal" checked> Normal Play
+                </label>
+                <label class="mode-option">
+                    <input type="radio" name="gameMode" value="backdoor"> Backdoor Fun
+                </label>
+            </div>
+        </div>
+        
+        <button class="draw-button" onclick="drawCard()">Draw Card</button>
+        
+        <div class="card-display" id="cardDisplay">
+            <div class="card-content">
+                <div class="card-header">Welcome to the Couples Card Game! ♥</div>
+                <div class="card-separator">═══════════════════════════════════════</div>
+                <div>
+                    <strong>How to play:</strong><br><br>
+                    1. Select your game mode (Normal or Backdoor Fun)<br>
+                    2. The current player draws a card<br>
+                    3. Follow the activity on the card<br>
+                    4. Click 'Next Turn' to switch players<br>
+                    5. Enjoy your intimate time together!<br><br>
+                    Click 'Draw Card' to begin...
+                </div>
+            </div>
+        </div>
+        
+        <div class="control-buttons">
+            <button class="control-button next-turn" onclick="nextTurn()">Next Turn</button>
+            <button class="control-button add-card" onclick="showAddCardModal()">Add New Card</button>
+            <button class="control-button safety-guidelines" onclick="showSafetyModal()">Safety Guidelines</button>
+            <button class="control-button reset-game" onclick="resetGame()">Reset Game</button>
+        </div>
+    </div>
+
+    <!-- Add Card Modal -->
+    <div class="modal" id="addCardModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('addCardModal')">&times;</span>
+            <div class="modal-header">Add New Card</div>
+            <div class="form-group">
+                <label>Select Category:</label>
+                <div class="mode-options">
+                    <label class="mode-option">
+                        <input type="radio" name="cardCategory" value="Him" checked> Him
+                    </label>
+                    <label class="mode-option">
+                        <input type="radio" name="cardCategory" value="Her"> Her
+                    </label>
+                    <label class="mode-option">
+                        <input type="radio" name="cardCategory" value="Backdoor"> Backdoor
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Card Text:</label>
+                <textarea id="cardText" rows="6" placeholder="Enter your card text here..."></textarea>
+            </div>
+            <div class="form-buttons">
+                <button class="form-button save-button" onclick="saveCard()">Save Card</button>
+                <button class="form-button cancel-button" onclick="closeModal('addCardModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Safety Guidelines Modal -->
+    <div class="modal" id="safetyModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('safetyModal')">&times;</span>
+            <div class="modal-header">♥ Safety Guidelines ♥</div>
+            <div class="safety-content">
+                <div class="safety-section">
+                    <h3>General Guidelines</h3>
+                    <p>1. <strong>CONSENT:</strong> Discuss all activities beforehand and ensure enthusiastic consent.</p>
+                    <p>2. <strong>COMMUNICATION:</strong> Encourage ongoing verbal or non-verbal feedback to adjust pace, pressure, or intensity.</p>
+                    <p>3. <strong>HYGIENE:</strong> Wash hands or use protection to maintain cleanliness, especially when transitioning between activities.</p>
+                    <p>4. <strong>PHYSICAL COMFORT:</strong> Use pillows or support for positions to avoid strain. Ensure both partners are relaxed and comfortable.</p>
+                    <p>5. <strong>LUBRICATION:</strong> Use water-based lubricant for any penetrative activities to enhance comfort and reduce friction.</p>
+                    <p>6. <strong>ALLERGIES:</strong> Check for allergies to oils, lubricants, or materials before using them.</p>
+                    <p>7. <strong>PACING:</strong> Start slowly with intense activities to gauge comfort levels and avoid discomfort.</p>
+                </div>
+                
+                <div class="safety-section">
+                    <h3>Bondage Safety</h3>
+                    <p>1. <strong>CONSENT:</strong> Discuss bondage activities beforehand and ensure enthusiastic consent. Check in during play.</p>
+                    <p>2. <strong>SAFE MATERIALS:</strong> Use soft, non-abrasive materials (scarves, soft ropes) that won't cut off circulation.</p>
+                    <p>3. <strong>SAFETY TOOLS:</strong> Always have scissors nearby for quick release if needed.</p>
+                    <p>4. <strong>LOOSE RESTRAINTS:</strong> Ensure restraints are loose enough to avoid cutting off circulation.</p>
+                    <p>5. <strong>COMMUNICATION:</strong> Establish safe words and check in regularly during bondage play.</p>
+                </div>
+                
+                <div class="safety-section">
+                    <h3>Anal Play Safety</h3>
+                    <p>1. <strong>CONSENT:</strong> Discuss anal play beforehand and ensure enthusiastic, ongoing consent.</p>
+                    <p>2. <strong>LUBRICATION:</strong> Use generous amounts of water-based or silicone-based lubricant.</p>
+                    <p>3. <strong>PROGRESSION:</strong> Start with external stimulation and progress to insertion only when partner is relaxed.</p>
+                    <p>4. <strong>HYGIENE:</strong> Use gloves or wash hands thoroughly; clean toys before and after use.</p>
+                    <p>5. <strong>COMMUNICATION:</strong> Encourage feedback to ensure comfort and pleasure at all times.</p>
+                    <p>6. <strong>PREPARATION:</strong> Consider a warm bath or foreplay to relax the body before anal play.</p>
+                    <p>7. <strong>TOY SAFETY:</strong> Use toys with a flared base to prevent them from getting lost; clean toys properly.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let currentPlayer = "Him";
+        let gameMode = "normal";
+        let cards = {
+            "Him": [
+                "Give her a sensual massage, focusing on her back and shoulders, using warm oil.",
+                "Kiss her neck passionately, gently sucking to leave light marks.",
+                "Tease her by slowly unzipping her pants and caressing her inner thighs.",
+                "Whisper seductive words in her ear while nibbling her earlobe.",
+                "Let her watch you touch yourself sensually, moaning softly.",
+                "Perform slow, sensual oral sex on her, following her cues for pace and pressure.",
+                "Let her ride you in cowgirl style, kissing her deeply and moving together.",
+                "Spank her lightly (with consent) while she's on all fours, then stimulate her with your fingers.",
+                "Perform a lap dance, grinding against her and teasing with your body.",
+                "Trace your fingers down her chest, licking and gently sucking her nipples.",
+                "Let her watch you use a vibrator on yourself, inviting her to join if desired.",
+                "Give her a slow, sensual handjob-like stimulation, teasing her clitoris with your tongue.",
+                "Let her lie back as you perform oral sex, encouraging her to guide you.",
+                "Slowly remove her underwear, teasing her by showing your arousal.",
+                "Give her a back massage, straddling her to heighten intimacy.",
+                "Let her watch you caress your chest and play with your nipples.",
+                "Let her ride you in reverse cowgirl style, moving sensually and moaning.",
+                "Kiss her deeply, exploring her mouth with your tongue.",
+                "Tease her by grinding against her thigh while still partially clothed.",
+                "Blindfold her (with consent) and explore her body with light touches and kisses.",
+                "Slowly unbutton her blouse, kissing her chest as you go.",
+                "Make love in missionary style, maintaining eye contact and moaning softly.",
+                "Tie her wrists loosely (with consent) using a soft scarf, teasing her with your body.",
+                "Perform oral sex while she's seated, varying intensity based on her reactions.",
+                "Let her watch you use a dildo on yourself, inviting her to participate if comfortable."
+            ],
+            "Her": [
+                "Give him a sensual massage, focusing on his back and shoulders, using warm oil.",
+                "Kiss his neck passionately, gently sucking to leave light marks.",
+                "Tease him by slowly unzipping his pants and caressing his inner thighs.",
+                "Whisper seductive words in his ear while nibbling his earlobe.",
+                "Let him watch you touch yourself sensually, moaning softly.",
+                "Give him a slow, sensual blowjob, varying pace and depth with his feedback.",
+                "Ride him in cowgirl style, kissing him deeply and moving your hips rhythmically.",
+                "Let him spank you lightly while you're on all fours, then guide his fingers to stimulate you.",
+                "Perform a lap dance, grinding against him and teasing with your body.",
+                "Trace your fingers down his chest, licking and gently sucking his nipples.",
+                "Let him watch you use a vibrator, inviting him to join if desired.",
+                "Give him a slow, sensual handjob, teasing the tip with your tongue.",
+                "Lie back as he performs oral sex on you, guiding him with gentle hair tugs.",
+                "Slowly remove your underwear, teasing him by showing your arousal.",
+                "Give him a back massage, straddling him to heighten intimacy.",
+                "Let him watch you caress your breasts and play with your nipples.",
+                "Ride him in reverse cowgirl style, moving sensually and moaning.",
+                "Kiss him deeply, exploring his mouth with your tongue.",
+                "Tease him by grinding against his thigh while still partially clothed.",
+                "Blindfold him (with consent) and explore his body with light touches and kisses.",
+                "Slowly unbutton his shirt, kissing his chest as you go.",
+                "Ride him in missionary style, maintaining eye contact and moaning softly.",
+                "Tie his wrists loosely (with consent) using a soft scarf, teasing him with your body.",
+                "Perform oral sex while he's seated, varying intensity based on his reactions.",
+                "Let him watch you use a dildo, inviting him to participate if comfortable."
+            ],
+            "Backdoor": [
+                "With consent, tease your partner by gently circling their anus with a lubricated finger while they're on their hands and knees, focusing on external stimulation.",
+                "During cowgirl style, slowly insert a well-lubricated finger into their anus, pausing to check for comfort and relaxation.",
+                "Introduce a small, lubricated butt plug, showing it to your partner and inserting it gradually with their permission.",
+                "Use a small, lubricated vibrator to tease their anus externally while they're on their back, ensuring they're relaxed and aroused.",
+                "While spooning, gently insert a lubricated finger into their anus, moving slowly and responding to their feedback.",
+                "Let your partner watch you use a lubricated butt plug on yourself, inviting them to touch or assist if desired.",
+                "During reverse cowgirl style, slowly insert a lubricated finger into their anus, checking for comfort and maintaining a slow pace.",
+                "Tease their anus with a lubricated finger while they're on their side, using circular motions and plenty of lubricant.",
+                "With consent, massage their perineum (area between anus and genitals) with lubricated fingers to build arousal before anal play.",
+                "Use a lubricated anal bead toy, inserting one bead at a time with their consent, and slowly removing them for added sensation.",
+                "While they're lying on their stomach, gently rim their anus with your tongue (with consent), ensuring hygiene and comfort.",
+                "Let your partner watch you tease your own anus with a lubricated finger or small toy, encouraging mutual exploration.",
+                "During missionary style, gently press a lubricated finger against their anus without insertion, teasing and checking for their response.",
+                "Use a lubricated, flexible anal wand to gently stimulate their anus while they're seated, allowing them to control the depth.",
+                "With consent, combine anal stimulation with a lubricated finger and clitoral/penile stimulation using your other hand, enhancing dual pleasure."
+            ]
+        };
+
+        // Initialize game
+        updateGameModeListener();
+        
+        function updateGameModeListener() {
+            document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    gameMode = this.value;
+                    displayModeInfo();
+                });
+            });
+        }
+
+        function displayModeInfo() {
+            const message = gameMode === "backdoor" 
+                ? "Backdoor Fun mode activated! Cards will be mixed for both players."
+                : "Normal play mode activated!";
+            
+            document.getElementById('cardDisplay').innerHTML = `
+                <div class="card-content">
+                    <div class="card-header">♥ MODE CHANGED ♥</div>
+                    <div class="card-separator">═══════════════════════════════════════</div>
+                    <div>${message}<br><br>Click 'Draw Card' to continue...</div>
+                </div>
+            `;
+        }
+
+        function drawCard() {
+            let cardPool, category;
+            
+            if (gameMode === "backdoor") {
+                cardPool = cards["Backdoor"];
+                category = "Backdoor";
+            } else {
+                cardPool = cards[currentPlayer];
+                category = currentPlayer;
+            }
+            
+            if (cardPool.length === 0) {
+                alert(`No cards available for ${category}!`);
+                return;
+            }
+            
+            const randomCard = cardPool[Math.floor(Math.random() * cardPool.length)];
+            displayCard(randomCard, category);
+        }
+
+        function displayCard(card, category) {
+            document.getElementById('cardDisplay').innerHTML = `
+                <div class="card-content">
+                    <div class="card-header">♥ CARD DRAWN ♥</div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Player:</strong> ${currentPlayer}<br>
+                        <strong>Category:</strong> ${category}
+                    </div>
+                    <div class="card-separator">═══════════════════════════════════════</div>
+                    <div style="margin: 15px 0; font-size: 15px; line-height: 1.6;">
+                        ${card}
+                    </div>
+                    <div class="card-separator">═══════════════════════════════════════</div>
+                    <div style="margin-top: 15px; font-style: italic;">
+                        Enjoy your intimate moment together!<br>
+                        Click 'Next Turn' when ready to continue.
+                    </div>
+                </div>
+            `;
+        }
+
+        function nextTurn() {
+            currentPlayer = currentPlayer === "Him" ? "Her" : "Him";
+            document.getElementById('currentPlayer').textContent = `Current Turn: ${currentPlayer}`;
+            
+            document.getElementById('cardDisplay').innerHTML = `
+                <div class="card-content">
+                    <div class="card-header">♥ TURN SWITCHED ♥</div>
+                    <div class="card-separator">═══════════════════════════════════════</div>
+                    <div>
+                        It's now <strong>${currentPlayer}'s</strong> turn!<br><br>
+                        Click 'Draw Card' to get your next activity.
+                    </div>
+                </div>
+            `;
+        }
+
+        function showAddCardModal() {
+            document.getElementById('addCardModal').style.display = 'block';
+        }
+
+        function showSafetyModal() {
+            document.getElementById('safetyModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            if (modalId === 'addCardModal') {
+                document.getElementById('cardText').value = '';
+            }
+        }
+
+        function saveCard() {
+            const category = document.querySelector('input[name="cardCategory"]:checked').value;
+            const text = document.getElementById('cardText').value.trim();
+            
+            if (!text) {
+                alert('Please enter card text!');
+                return;
+            }
+            
+            cards[category].push(text);
+            alert(`Card added to ${category} category!`);
+            closeModal('addCardModal');
+        }
+
+        function resetGame() {
+            currentPlayer = "Him";
+            gameMode = "normal";
+            document.getElementById('currentPlayer').textContent = `Current Turn: ${currentPlayer}`;
+            document.querySelector('input[name="gameMode"][value="normal"]').checked = true;
+            
+            document.getElementById('cardDisplay').innerHTML = `
+                <div class="card-content">
+                    <div class="card-header">Welcome to the Couples Card Game! ♥</div>
+                    <div class="card-separator">═══════════════════════════════════════</div>
+                    <div>
+                        <strong>How to play:</strong><br><br>
+                        1. Select your game mode (Normal or Backdoor Fun)<br>
+                        2. The current player draws a card<br>
+                        3. Follow the activity on the card<br>
+                        4. Click 'Next Turn' to switch players<br>
+                        5. Enjoy your intimate time together!<br><br>
+                        Click 'Draw Card' to begin...
+                    </div>
+                </div>
+            `;
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
